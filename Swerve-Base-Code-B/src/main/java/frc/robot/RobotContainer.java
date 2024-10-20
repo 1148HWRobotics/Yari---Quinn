@@ -1,12 +1,16 @@
 package frc.robot;
 
+import javax.swing.text.StyleContext.SmallAttributeSet;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -76,9 +80,18 @@ public class RobotContainer {
                 s_Swerve::getRobotVelocity,
                 s_Swerve::fromChassisSpeeds, Constants.AutoConstants.getPathFollowerConfig(), RobotContainer::getIsRed,
                 s_Swerve);
+        NamedCommands.registerCommand("shoot", new AutoShootCommand().withTimeout(4));
+        SmartDashboard.putData("zero heading", new Command() {
+            @Override
+            public void initialize() {
+                Swerve.getInstance().zeroHeading();
+            }
+        });
 
         // Configure the button bindings
         configureButtonBindings();
+        Constants.AutoConstants.configureAutos();
+        SmartDashboard.putData(Constants.AutoConstants.getAutoChooser());
     }
 
     /**
@@ -97,7 +110,7 @@ public class RobotContainer {
             Carriage.getInstance().stop();
         }));
         outTakeButton.whileTrue(new OutTakeCommand());
-        shootClose.whileTrue(new ShooterPresetCommand(13));
+        shootClose.whileTrue(new ShooterPresetCommand(14));
         forceFire.whileTrue(new InstantCommand(() -> {
             Intake.getInstance().setIntakeSpeed(0.5);
             Carriage.getInstance().setVelocity(1);
@@ -106,15 +119,15 @@ public class RobotContainer {
             Carriage.getInstance().stop();
         }));
         passButton.whileTrue(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(4);
-            Shooter.getInstance().setVelocity(Constants.Swerve.Shooter.passVelocity);
+            Shooter.getInstance().setAngleTarget(3);
+            Shooter.getInstance().setVelocity(0.9999);
         })).onFalse(new InstantCommand(() -> {
             Shooter.getInstance().setAngleTarget(1.5);
             Shooter.getInstance().stop();
         }));
         highPass.whileTrue(new InstantCommand(() -> {
             Shooter.getInstance().setAngleTarget(13);
-            Shooter.getInstance().setVelocity(0.6);
+            Shooter.getInstance().setVelocity(0.55);
         })).onFalse(new InstantCommand(() -> {
             Shooter.getInstance().setAngleTarget(1.5);
             Shooter.getInstance().stop();
@@ -126,7 +139,7 @@ public class RobotContainer {
             Intake.getInstance().stop();
             Carriage.getInstance().stop();
         }));
-        shootFar.whileTrue(new ShooterPresetCommand(8));
+        shootFar.whileTrue(new ShooterPresetCommand(9.5));
         shootVeryFar.whileTrue(new ShooterPresetCommand(6.3));
 
         // isDrifting.onTrue(new InstantCommand((() -> s_Swerve.isDrifting =
@@ -148,6 +161,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return new PathPlannerAuto("Splean Time");
+        return new PathPlannerAuto(Constants.AutoConstants.getAutoChooser().getSelected());
     }
 }

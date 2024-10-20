@@ -128,7 +128,7 @@ public final class Constants {
             public static final int canCoderID = 12; // Left Front Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.055176 + 0.5); // Adjusted to
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.466797); // Adjusted to
             // match the
             // left
             // front encoder
@@ -144,7 +144,7 @@ public final class Constants {
             public static final int canCoderID = 13; // Right Front Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.039062 + 0.5); // Adjusted to
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.467285); // Adjusted to
             // match the
             // right front
             // encoder
@@ -160,7 +160,7 @@ public final class Constants {
             public static final int canCoderID = 11; // Left Back Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.325928); // Adjusted to
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.316162); // Adjusted to
             // match the
             // left back
             // encoder offset
@@ -175,8 +175,7 @@ public final class Constants {
             public static final int canCoderID = 14; // Right Back Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.251221 + 0.5); // Adjusted to
-            // match the
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.254150);
             // right
             // back encoder
             // offset
@@ -337,14 +336,17 @@ public final class Constants {
         private static PIDConstants translationConstants = new PIDConstants(1.1, 0.0, 0.0);
         private static PIDConstants rotationConstants = new PIDConstants(1.9, 0, 0.0);
         private static ReplanningConfig replanningConfig = new ReplanningConfig();
-        private static SendableChooser<PathPlannerAuto> autoChooser = new SendableChooser<PathPlannerAuto>();
+        private static SendableChooser<String> autoChooser = new SendableChooser<String>();
 
-        public static SendableChooser<PathPlannerAuto> getAutoChooser() {
+        public static SendableChooser<String> getAutoChooser() {
             return autoChooser;
         }
 
         public static void configureAutos() {
-            autoChooser.setDefaultOption("", new PathPlannerAuto("null"));
+            autoChooser.setDefaultOption("Source Side", "Source Side");
+            autoChooser.addOption("Amp Side", "Splean Time");
+            autoChooser.addOption("Source Side", "Source Side");
+
         }
 
         public static HolonomicPathFollowerConfig getPathFollowerConfig() {

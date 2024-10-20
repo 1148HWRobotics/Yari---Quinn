@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
@@ -53,6 +54,7 @@ public class Carriage extends SubsystemBase {
                 Constants.Swerve.Carriage.kV, Constants.Swerve.Carriage.kA);
         this.motor.getConfigurator().apply(new Slot0Configs().withKP(Constants.Swerve.Carriage.carriageKP)
                 .withKI(Constants.Swerve.Carriage.carriageKI).withKD(Constants.Swerve.Carriage.carriageKD));
+        this.motor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(120).withSupplyCurrentLimit(240));
         this.motorControl = new MotionMagicVelocityTorqueCurrentFOC(0, 0, false, 0, 0, false, false, false);
         this.motor.setControl(motorControl);
         this.noteSensor = new BinarySensor(Constants.Swerve.Carriage.carriageSensorPort);

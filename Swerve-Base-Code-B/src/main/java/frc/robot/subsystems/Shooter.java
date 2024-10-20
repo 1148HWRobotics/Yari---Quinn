@@ -197,7 +197,7 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         if (Math.abs(velocity
                 - (shooterMotor1.getVelocity().getValueAsDouble() + shooterMotor2.getVelocity().getValueAsDouble())
-                        / 2) < 0.5) {
+                        / 2) < 0.05) {
             isAtVelocity = true;
         } else {
             isAtVelocity = false;

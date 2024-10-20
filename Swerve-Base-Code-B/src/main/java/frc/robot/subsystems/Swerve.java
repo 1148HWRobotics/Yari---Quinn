@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -80,7 +81,7 @@ public class Swerve extends SubsystemBase {
 
         neutralModeChooser.setDefaultOption("Brake", NeutralModeValue.Brake);
         neutralModeChooser.addOption("Coast", NeutralModeValue.Coast);
-        setPose(new Pose2d(new Translation2d(6, 3), new Rotation2d()));
+        setPose(PathPlannerAuto.getStaringPoseFromAutoFile("Splean Time"));
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
