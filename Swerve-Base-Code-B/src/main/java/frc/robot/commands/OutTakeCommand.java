@@ -12,7 +12,7 @@ public class OutTakeCommand extends Command {
 
     @Override
     public void initialize() {
-        Shooter.getInstance().setAngleTarget(1.5);
+        Shooter.getInstance().setAngleTarget(4);
         Carriage.getInstance().setHasNote(false);
         Intake.getInstance().outtake();
         Carriage.getInstance().outtake();

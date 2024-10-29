@@ -81,11 +81,12 @@ public class Swerve extends SubsystemBase {
 
         neutralModeChooser.setDefaultOption("Brake", NeutralModeValue.Brake);
         neutralModeChooser.addOption("Coast", NeutralModeValue.Coast);
-        setPose(PathPlannerAuto.getStaringPoseFromAutoFile("Splean Time"));
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+        SwerveModuleState[] swerveModuleStates;
+        if(!RobotContainer.isDrifting()){
+        swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
                         translation.getX(),
                         translation.getY(),
@@ -95,6 +96,18 @@ public class Swerve extends SubsystemBase {
                                 translation.getX(),
                                 translation.getY(),
                                 rotation));
+        }else{
+            swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+                fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                        translation.getX(),
+                        translation.getY(),
+                        rotation,
+                        getGyroYaw())
+                        : new ChassisSpeeds(
+                                translation.getX(),
+                                translation.getY(),
+                                rotation), new Translation2d(0, Constants.Swerve.wheelBase));
+        }
         // Sets center of rotation to front of robot for sick drifts
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 
@@ -197,7 +210,6 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
-        System.out.println(distance);
         distance += getRobotVelocity().vyMetersPerSecond * 0.02;
         swerveOdometry.update(getGyroYaw(), getModulePositions());
 

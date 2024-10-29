@@ -35,7 +35,7 @@ public final class Constants {
     public static final double stickDeadband = 0.1;
 
     public static final class Swerve {
-        public static final int pigeonID = 18;
+        public static final int pigeonID = 21;
         public static final String shooterLimeLightID = "limelight-a";
         public static final String intakeLimeLightID = "limelight-b";
 
@@ -45,10 +45,10 @@ public final class Constants {
                         .Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L3);
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(21.25); // TODO: This must be tuned to
+        public static final double trackWidth = Units.inchesToMeters(30.0); // TODO: This must be tuned to
                                                                              // specific
                                                                              // robot
-        public static final double wheelBase = Units.inchesToMeters(21.25); // TODO: This must be tuned to
+        public static final double wheelBase = Units.inchesToMeters(30.0); // TODO: This must be tuned to
                                                                             // specific
                                                                             // robot
         public static final double wheelCircumference = chosenModule.wheelCircumference;
@@ -123,12 +123,12 @@ public final class Constants {
         /* Module Specific Constants */
         /* Front Left Module - Module 0 */
         public static final class Mod0 { // Front Left Module
-            public static final int driveMotorID = 4; // Left Front Go motor ID
-            public static final int angleMotorID = 3; // Left Front Turn motor ID
-            public static final int canCoderID = 12; // Left Front Encoder CAN ID, assuming it acts as the
+            public static final int driveMotorID = 1; // Left Front Go motor ID
+            public static final int angleMotorID = 2; // Left Front Turn motor ID
+            public static final int canCoderID = 11; // Left Front Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.466797); // Adjusted to
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.020020); // Adjusted to
             // match the
             // left
             // front encoder
@@ -139,12 +139,12 @@ public final class Constants {
         }
 
         public static final class Mod1 { // Front Right Module
-            public static final int driveMotorID = 6; // Right Front Go motor ID
-            public static final int angleMotorID = 5; // Right Front Turn motor ID
-            public static final int canCoderID = 13; // Right Front Encoder CAN ID, assuming it acts as the
+            public static final int driveMotorID = 3; // Right Front Go motor ID
+            public static final int angleMotorID = 4; // Right Front Turn motor ID
+            public static final int canCoderID = 12; // Right Front Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.467285); // Adjusted to
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.36621); // Adjusted to
             // match the
             // right front
             // encoder
@@ -155,12 +155,12 @@ public final class Constants {
         }
 
         public static final class Mod2 { // Back Left Module
-            public static final int driveMotorID = 2; // Left Back Go motor ID
-            public static final int angleMotorID = 1; // Left Back Turn motor ID
-            public static final int canCoderID = 11; // Left Back Encoder CAN ID, assuming it acts as the
+            public static final int driveMotorID = 5; // Left Back Go motor ID
+            public static final int angleMotorID = 6; // Left Back Turn motor ID
+            public static final int canCoderID = 13; // Left Back Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.316162); // Adjusted to
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.082764+ 0.5); // Adjusted to
             // match the
             // left back
             // encoder offset
@@ -170,12 +170,12 @@ public final class Constants {
         }
 
         public static final class Mod3 { // Back Right Module
-            public static final int driveMotorID = 8; // Right Back Go motor ID
-            public static final int angleMotorID = 7; // Right Back Turn motor ID
+            public static final int driveMotorID = 7; // Right Back Go motor ID
+            public static final int angleMotorID = 8; // Right Back Turn motor ID
             public static final int canCoderID = 14; // Right Back Encoder CAN ID, assuming it acts as the
                                                      // canCoder for
                                                      // this module
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.254150);
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.473389+ 0.5);
             // right
             // back encoder
             // offset
@@ -185,23 +185,25 @@ public final class Constants {
         }
 
         public static final class Intake { // Intake
-            public static final int intakeMotorID = 21; // Intake motor ID
+            public static final int intakeMotorLowID = 15; // Intake motor ID
+            public static final int intakeMotorHighID = 16;
             public static final boolean intakeMotorInverted = true; // Intake motor inverted
+            public static final boolean intakeMotorInverted2 = true; // Intake motor inverted
             public static final double kS = 0.1; // Intake kS
             public static final double kV = 0.05; // Intake kV
             public static final double kA = 0.01; // Intake kA
             public static final NeutralModeValue intakeNeutralMode = NeutralModeValue.Brake; // Intake neutral mode
-            public static final double intakeKP = 0.5; // Intake kP
+            public static final double intakeKP = 30; // Intake kP
             public static final double intakeKI = 0.0; // Intake kI
             public static final double intakeKD = 0.01; // Intake kD
-            public static final double intakeVelocity = 0.5; // Intake velocity
+            public static final double intakeVelocity = 100; // Intake velocity
             public static final double outtakeVelocity = -70; // Intake velocity
         }
 
         public static final class Carriage { // Carriage
-            public static final int carriageMotorID = 20; // Carriage motor ID
-            public static final int carriageSensorPort = 9; // Carriage sensor ID
-            public static final boolean carriageMotorInverted = false; // Carriage motor inverted
+            public static final int carriageMotorID = 22; // Carriage motor ID
+            public static final int carriageSensorPort = 0; // Carriage sensor ID
+            public static final boolean carriageMotorInverted = true; // Carriage motor inverted
             public static final double kS = 0.15; // Carriage kS
             public static final double kV = 0.08; // Carriage kV
             public static final double kA = 0.02; // Carriage kA
@@ -218,37 +220,37 @@ public final class Constants {
         }
 
         public static final class Shooter { // Shooter
-            public static final int angleMotor1ID = 24; // Angling motor 1 ID
+            public static final int angleMotor1ID = 17; // Angling motor 1 ID
             public static final boolean angleMotor1Inverted = false; // Angling motor 1 inverted
-            public static final int angleMotor2ID = 26; // Angling motor 2 ID
+            public static final int angleMotor2ID = 18; // Angling motor 2 ID
             public static final boolean angleMotor2Inverted = true; // Angling motor 2 inverted
-            public static final int fireMotor1ID = 22; // Fire motor 1 ID
-            public static final boolean fireMotor1Inverted = false; // Fire motor 1 inverted
-            public static final int fireMotor2ID = 23; // Fire motor 2 ID
+            public static final int fireMotor1ID = 19; // Fire motor 1 ID
+            public static final boolean fireMotor1Inverted = true; // Fire motor 1 inverted
+            public static final int fireMotor2ID = 20; // Fire motor 2 ID
             public static final boolean fireMotor2Inverted = true; // Fire motor 2 inverted
             public static final double anglekS = 0.0; // Angle kS
             public static final double anglekG = 0.0; // Angle kG
             public static final double anglekV = 0.0; // Angle kV
             public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Brake; // Angle neutral mode
-            public static final double angleKP = 1.3; // Angle kP
+            public static final double angleKP = 1.0; // Angle kP
             public static final double angleKI = 0.0; // Angle kI
-            public static final double angleKD = 0.00; // Angle kD
+            public static final double angleKD = 0.2; // Angle kD
 
             public static final double shootkS = 0.0; // Shoot kS
             public static final double shootkV = 0.0; // Shoot kV
             public static final double shootkA = 0.00; // Shoot kA
             public static final NeutralModeValue fireNeutralMode = NeutralModeValue.Coast; // Shoot neutral mode
-            public static final double shootKP = 0.0; // Shoot kP
+            public static final double shootKP = 3.0; // Shoot kP
             public static final double shootKI = 0.0; // Shoot kI
             public static final double shootKD = 0.00; // Shoot kD
 
-            public static final double shootVelocity = 85.0; // Shoot velocity (RPM)
+            public static final double shootVelocity = 20.0; // Shoot velocity (RPM)
             public static final double passVelocity = 6.0; // Pass velocity (RPM)
             public static final double outtakeVelocity = -100.0; // Outtake velocity (RPM)
             public static final double ampVelocity = 20; // Amp velocity (RPM)
 
-            public static final double downAngle = 0; // Down angle (degrees)
-            public static final double upAngle = 17; // Up angle (degrees)
+            public static final double downAngle = 0.0; // Down angle (degrees)
+            public static final double upAngle = 36; // Up angle (degrees)
 
             public static final int angleSensorPort = 7; // Angle sensor port
 
@@ -346,6 +348,7 @@ public final class Constants {
             autoChooser.setDefaultOption("Source Side", "Source Side");
             autoChooser.addOption("Amp Side", "Splean Time");
             autoChooser.addOption("Source Side", "Source Side");
+            autoChooser.addOption("Amp 2 Note", "2 Note Amp");
 
         }
 

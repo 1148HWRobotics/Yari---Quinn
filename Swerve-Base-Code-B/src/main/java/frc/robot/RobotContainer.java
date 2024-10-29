@@ -39,6 +39,7 @@ public class RobotContainer {
 
     private final JoystickButton intakeButton = new JoystickButton(driver, PS4Controller.Button.kL2.value);
     private final JoystickButton shootClose = new JoystickButton(driver, PS4Controller.Button.kR1.value);
+    private final JoystickButton ampButton = new JoystickButton(driver, PS4Controller.Button.kSquare.value);
     private final JoystickButton outTakeButton = new JoystickButton(driver, PS4Controller.Button.kL1.value);
     private final JoystickButton forceFire = new JoystickButton(driver, PS4Controller.Button.kCross.value);
     private final JoystickButton passButton = new JoystickButton(driver, PS4Controller.Button.kR2.value);
@@ -47,14 +48,15 @@ public class RobotContainer {
     private final JoystickButton highPass = new JoystickButton(operator, PS4Controller.Button.kL1.value);
     private final JoystickButton forceFireOperator = new JoystickButton(operator, PS4Controller.Button.kCross.value);
 
+
     public static boolean isDrifting() {
         return isDrifting;
     }
 
     /* Subsystems */
     private final Swerve s_Swerve = Swerve.getInstance();
-    private final Intake intake = Intake.getInstance();
-    private final Carriage carriage = Carriage.getInstance();
+    // private final Intake intake = Intake.getInstance();
+    // private final Carriage carriage = Carriage.getInstance();
     private final Shooter shooter = Shooter.getInstance();
     // private final PoseEstimator poseEstimator = PoseEstimator.getInstance();
 
@@ -80,7 +82,8 @@ public class RobotContainer {
                 s_Swerve::getRobotVelocity,
                 s_Swerve::fromChassisSpeeds, Constants.AutoConstants.getPathFollowerConfig(), RobotContainer::getIsRed,
                 s_Swerve);
-        NamedCommands.registerCommand("shoot", new AutoShootCommand().withTimeout(4));
+        // NamedCommands.registerCommand("shoot", new AutoShootCommand().withTimeout(2));
+        // NamedCommands.registerCommand("intake", new IntakeCommand().withTimeout(4));
         SmartDashboard.putData("zero heading", new Command() {
             @Override
             public void initialize() {
@@ -92,6 +95,7 @@ public class RobotContainer {
         configureButtonBindings();
         Constants.AutoConstants.configureAutos();
         SmartDashboard.putData(Constants.AutoConstants.getAutoChooser());
+        Swerve.getInstance().setPose(PathPlannerAuto.getStaringPoseFromAutoFile(Constants.AutoConstants.getAutoChooser().getSelected()));
     }
 
     /**
@@ -127,7 +131,7 @@ public class RobotContainer {
         }));
         highPass.whileTrue(new InstantCommand(() -> {
             Shooter.getInstance().setAngleTarget(13);
-            Shooter.getInstance().setVelocity(0.55);
+            Shooter.getInstance().setVelocity(0.5);
         })).onFalse(new InstantCommand(() -> {
             Shooter.getInstance().setAngleTarget(1.5);
             Shooter.getInstance().stop();
@@ -141,9 +145,13 @@ public class RobotContainer {
         }));
         shootFar.whileTrue(new ShooterPresetCommand(9.5));
         shootVeryFar.whileTrue(new ShooterPresetCommand(6.3));
-
-        // isDrifting.onTrue(new InstantCommand((() -> s_Swerve.isDrifting =
-        // !s_Swerve.isDrifting)));
+        ampButton.whileTrue(new InstantCommand(() -> {
+            Shooter.getInstance().setAngleTarget(Constants.Swerve.Shooter.upAngle);
+            Shooter.getInstance().amp();
+        })).onFalse(new InstantCommand(() -> {
+            Shooter.getInstance().setAngleTarget(1.5);
+            Shooter.getInstance().stop();
+        }));
     }
 
     public static boolean getIsRed() {
@@ -161,6 +169,8 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
+
+        Swerve.getInstance().setPose(PathPlannerAuto.getStaringPoseFromAutoFile(Constants.AutoConstants.getAutoChooser().getSelected()));
         return new PathPlannerAuto(Constants.AutoConstants.getAutoChooser().getSelected());
     }
 }

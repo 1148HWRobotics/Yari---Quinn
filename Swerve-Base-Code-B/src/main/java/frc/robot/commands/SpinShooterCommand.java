@@ -44,7 +44,7 @@ public class SpinShooterCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        Shooter.getInstance().setFireControl(originalFireControl);
+        //Shooter.getInstance().setFireControl(originalFireControl);
         Shooter.getInstance().setVelocity(0);
         Shooter.getInstance().setAngleTarget(0);
     }

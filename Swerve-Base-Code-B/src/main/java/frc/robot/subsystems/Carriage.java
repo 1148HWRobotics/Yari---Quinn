@@ -98,7 +98,7 @@ public class Carriage extends SubsystemBase {
             @Override
             public void execute() {
                 setVelocity(Constants.Swerve.Carriage.outtakeVelocity / 2);
-                Intake.getInstance().setVelocity(Constants.Swerve.Carriage.outtakeVelocity / 2);
+                Intake.getInstance().setVelocity1(Constants.Swerve.Carriage.outtakeVelocity / 2);
                 accumulatedPosition -= getVelocity() * 0.02;
                 if (originalPosition - accumulatedPosition <= 0) {
                     cancel();

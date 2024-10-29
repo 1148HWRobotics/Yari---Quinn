@@ -14,7 +14,7 @@ public class AutoShootCommand extends Command {
     private double angle;
 
     public AutoShootCommand() {
-        this.angle = 11;
+        this.angle = 14;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AutoShootCommand extends Command {
             @Override
             public void execute() {
                 Carriage.getInstance().setVelocity(1);
-                Intake.getInstance().setVelocity(0.5);
+                Intake.getInstance().setVelocity1(0.5);
             }
             @Override
             public void end(boolean interrupted) {
@@ -51,6 +51,6 @@ public class AutoShootCommand extends Command {
                 Carriage.getInstance().stop();
             }
         };
-        shootCommand.withTimeout(5).schedule();
+        shootCommand.withTimeout(2.5).schedule();
     }
 }

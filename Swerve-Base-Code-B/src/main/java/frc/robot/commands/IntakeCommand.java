@@ -20,7 +20,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public void execute() {
-        Shooter.getInstance().setAngleTarget(1.5);
+        Shooter.getInstance().setAngleTarget(0);
         if (!Carriage.getInstance().getNoteSensor().get()) {
             Intake.getInstance().stop();
             Carriage.getInstance().stop();
