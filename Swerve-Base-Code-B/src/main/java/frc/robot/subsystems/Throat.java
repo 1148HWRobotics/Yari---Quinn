@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -16,8 +17,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.BinarySensor;
 
-public class Carriage extends SubsystemBase {
-    private static Carriage instance;
+public class Throat extends SubsystemBase {
+    private static Throat instance;
     private TalonFX motor;
     private BinarySensor noteSensor;
 
@@ -25,28 +26,28 @@ public class Carriage extends SubsystemBase {
         return noteSensor;
     }
 
-    private MotionMagicVelocityTorqueCurrentFOC motorControl;
+    private VelocityVoltage motorControl;
     private SimpleMotorFeedforward feedforward;
-    boolean prepShot = false;
-    boolean isFiring = false;
-    boolean hasNote = false;
+    boolean oilingUp = false;
+    boolean isShootingUpFent = false;
+    boolean itsInsideOfMe = false;
 
-    public boolean isHasNote() {
-        return hasNote;
+    public boolean isItsInsideOfMe() {
+        return itsInsideOfMe;
     }
 
     private SendableChooser<NeutralModeValue> neutralModeChooser = new SendableChooser<>();
-    private double velocity = 0.0;
+    private double freakiness = 0.0;
     private NeutralModeValue currentNeutralMode = Constants.Swerve.Carriage.carriageNeutralMode;
 
-    public static Carriage getInstance() {
+    public static Throat getInstance() {
         if (instance == null) {
-            instance = new Carriage();
+            instance = new Throat();
         }
         return instance;
     }
 
-    private Carriage() {
+    private Throat() {
         this.motor = new TalonFX(Constants.Swerve.Carriage.carriageMotorID);
         this.motor.setInverted(Constants.Swerve.Carriage.carriageMotorInverted);
         this.motor.setNeutralMode(Constants.Swerve.Carriage.carriageNeutralMode);
@@ -55,34 +56,39 @@ public class Carriage extends SubsystemBase {
         this.motor.getConfigurator().apply(new Slot0Configs().withKP(Constants.Swerve.Carriage.carriageKP)
                 .withKI(Constants.Swerve.Carriage.carriageKI).withKD(Constants.Swerve.Carriage.carriageKD));
         this.motor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(120).withSupplyCurrentLimit(240));
-        this.motorControl = new MotionMagicVelocityTorqueCurrentFOC(0, 0, false, 0, 0, false, false, false);
+        this.motorControl = new VelocityVoltage(0, 0, false, 0, 0, false, false, false);
         this.motor.setControl(motorControl);
         this.noteSensor = new BinarySensor(Constants.Swerve.Carriage.carriageSensorPort);
         neutralModeChooser.setDefaultOption("Brake", NeutralModeValue.Brake);
         neutralModeChooser.addOption("Coast", NeutralModeValue.Coast);
     }
 
-    public void setVelocity(double speed) {
-        velocity = speed;
+    public void setFreakiness(double speed) {
+        freakiness = speed;
     }
 
-    public void setPrepShot(boolean prepShot) {
-        this.prepShot = prepShot;
+    public void setOilingUp(boolean prepShot) {
+        this.oilingUp = prepShot;
     }
 
-    public void setFiring(boolean isFiring) {
-        this.isFiring = isFiring;
+    public void setShootingUpFent(boolean isFiring) {
+        this.isShootingUpFent = isFiring;
     }
 
-    public void setHasNote(boolean hasNote) {
-        this.hasNote = hasNote;
+    public void setItsInsideOfMe(boolean hasNote) {
+        this.itsInsideOfMe = hasNote;
     }
 
     public void setMotorControl(MotionMagicTorqueCurrentFOC control) {
         motor.setControl(control);
     }
 
-    public double getVelocity() {
+    private double setPoint = 0;
+    public void set(double power){
+        setPoint = power;
+    }
+
+    public double getFreakiness() {
         return motor.getVelocity().getValueAsDouble();
     }
 
@@ -97,9 +103,9 @@ public class Carriage extends SubsystemBase {
 
             @Override
             public void execute() {
-                setVelocity(Constants.Swerve.Carriage.outtakeVelocity / 2);
-                Intake.getInstance().setVelocity1(Constants.Swerve.Carriage.outtakeVelocity / 2);
-                accumulatedPosition -= getVelocity() * 0.02;
+                setFreakiness(Constants.Swerve.Carriage.outtakeVelocity / 2);
+                Mouth.getInstance().setFreakiness1(Constants.Swerve.Carriage.outtakeVelocity / 2);
+                accumulatedPosition -= getFreakiness() * 0.02;
                 if (originalPosition - accumulatedPosition <= 0) {
                     cancel();
                 }
@@ -116,7 +122,7 @@ public class Carriage extends SubsystemBase {
 
             @Override
             public void end(boolean interrupted) {
-                Intake.getInstance().stop();
+                Mouth.getInstance().stop();
                 stop();
             }
         }.withTimeout(0.5);
@@ -131,25 +137,25 @@ public class Carriage extends SubsystemBase {
         return motor.getPosition().getValueAsDouble();
     }
 
-    public void intake() {
+    public void swallow() {
         // if (!hasNote) {
-        velocity = Constants.Swerve.Carriage.intakeVelocity;
+        freakiness = Constants.Swerve.Carriage.intakeVelocity;
         // } else {
 
         // }
 
     }
 
-    public void outtake() {
-        velocity = -Constants.Swerve.Carriage.intakeVelocity;
-        hasNote = false;
+    public void hawk() {
+        freakiness = -Constants.Swerve.Carriage.intakeVelocity;
+        itsInsideOfMe = false;
     }
 
     public NeutralModeValue getNeutralMode() {
         return currentNeutralMode;
     }
 
-    public void shoot() {
+    public void tuah() {
         Command shootCommand = new Command() {
             @Override
             public void initialize() {
@@ -157,7 +163,7 @@ public class Carriage extends SubsystemBase {
 
             @Override
             public void execute() {
-                velocity = Constants.Swerve.Carriage.fireVelocity;
+                freakiness = Constants.Swerve.Carriage.fireVelocity;
             }
 
             @Override
@@ -169,26 +175,30 @@ public class Carriage extends SubsystemBase {
     }
 
     public void stop() {
-        velocity = 0.0;
+        freakiness = 0.0;
     }
 
     public void intakeSlow() {
-        velocity = Constants.Swerve.Carriage.intakeSlowVelocity;
+        freakiness = Constants.Swerve.Carriage.intakeSlowVelocity;
     }
 
     public void outtakeSlow() {
-        velocity = -Constants.Swerve.Carriage.intakeSlowVelocity;
+        freakiness = -Constants.Swerve.Carriage.intakeSlowVelocity;
     }
 
     @Override
 
     public void periodic() {
-        motorControl = new MotionMagicVelocityTorqueCurrentFOC(velocity, 0.0, true, feedforward.calculate(velocity), 0,
-                false, false, false);
-        motor.setControl(motorControl);
-        motor.set(velocity);
+        if(setPoint != 0){
+            motor.setControl(motorControl.withSlot(1));
+            motor.set(setPoint);
+        }
+        else{
+            motorControl = motorControl.withVelocity(freakiness).withEnableFOC(true).withSlot(0);
+            motor.setControl(motorControl);
+        }
 
-        SmartDashboard.putBoolean("Has Note", hasNote);
+        SmartDashboard.putBoolean("Has Note", itsInsideOfMe);
         SmartDashboard.putData("Carriage Neutral Mode", neutralModeChooser);
         if (neutralModeChooser.getSelected() != currentNeutralMode) {
             currentNeutralMode = neutralModeChooser.getSelected();

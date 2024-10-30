@@ -16,14 +16,14 @@ public class SpinShooterCommand extends Command {
     // todo Implement PathPlanner Shoot Command
     public SpinShooterCommand() {
         currentPose = Swerve.getInstance().getPose();
-        solution = new ShooterSolution(Shooter.getInstance().getVelocity(), Shooter.getInstance().getAngleCurrent());
+        solution = new ShooterSolution(Shooter.getInstance().getVelocity(), Shooter.getInstance().getThicknessCurrent());
     }
 
     @Override
     public void initialize() {
         if(solution != null){
-            Shooter.getInstance().setAngleTarget(solution.angle);
-            Shooter.getInstance().setVelocity(solution.velocity);
+            Shooter.getInstance().setThicknessTarget(solution.angle);
+            Shooter.getInstance().setFreakiness(solution.velocity);
         }
     }
 
@@ -33,10 +33,10 @@ public class SpinShooterCommand extends Command {
         solution = ShotCalculator.calculateOptimalShooterParameters(currentPose);
         if(solution != null) {
             if(Math.abs(solution.velocity - Shooter.getInstance().getVelocity()) > 0.5) {
-                Shooter.getInstance().setVelocity(solution.velocity);
+                Shooter.getInstance().setFreakiness(solution.velocity);
             }
-            if(Math.abs(solution.angle - Shooter.getInstance().getAngleCurrent()) > 0.5) {
-                Shooter.getInstance().setAngleCurrent(solution.angle);
+            if(Math.abs(solution.angle - Shooter.getInstance().getThicknessCurrent()) > 0.5) {
+                Shooter.getInstance().setThicknessTarget(solution.angle);
             }
         }
         
@@ -45,7 +45,7 @@ public class SpinShooterCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         //Shooter.getInstance().setFireControl(originalFireControl);
-        Shooter.getInstance().setVelocity(0);
-        Shooter.getInstance().setAngleTarget(0);
+        Shooter.getInstance().setFreakiness(0);
+        Shooter.getInstance().setThicknessTarget(0);
     }
 }

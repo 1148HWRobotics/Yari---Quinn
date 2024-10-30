@@ -2,8 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.Carriage;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Throat;
+import frc.robot.subsystems.Mouth;
 import frc.robot.subsystems.Shooter;
 
 public class IntakeCommand extends Command {
@@ -20,26 +20,26 @@ public class IntakeCommand extends Command {
 
     @Override
     public void execute() {
-        Shooter.getInstance().setAngleTarget(0);
-        if (!Carriage.getInstance().getNoteSensor().get()) {
-            Intake.getInstance().stop();
-            Carriage.getInstance().stop();
-            Carriage.getInstance().setHasNote(true);
+        Shooter.getInstance().setThicknessTarget(0);
+        if (!Throat.getInstance().getNoteSensor().get()) {
+            Mouth.getInstance().stop();
+            Throat.getInstance().stop();
+            Throat.getInstance().setItsInsideOfMe(true);
         } else {
-            Intake.getInstance().intake();
-            Carriage.getInstance().intake();
+            Mouth.getInstance().eat();
+            Throat.getInstance().swallow();
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        Intake.getInstance().stop();
-        Carriage.getInstance().stop();
+        Mouth.getInstance().stop();
+        Throat.getInstance().stop();
     }
 
     @Override
     public boolean isFinished() {
-        if (!Carriage.getInstance().getNoteSensor().get())
+        if (!Throat.getInstance().getNoteSensor().get())
             return true;
         return false;
     }

@@ -193,9 +193,9 @@ public final class Constants {
             public static final double kV = 0.05; // Intake kV
             public static final double kA = 0.01; // Intake kA
             public static final NeutralModeValue intakeNeutralMode = NeutralModeValue.Brake; // Intake neutral mode
-            public static final double intakeKP = 30; // Intake kP
+            public static final double intakeKP = 0.3; // Intake kP
             public static final double intakeKI = 0.0; // Intake kI
-            public static final double intakeKD = 0.01; // Intake kD
+            public static final double intakeKD = 0.00; // Intake kD
             public static final double intakeVelocity = 100; // Intake velocity
             public static final double outtakeVelocity = -70; // Intake velocity
         }
@@ -208,14 +208,14 @@ public final class Constants {
             public static final double kV = 0.08; // Carriage kV
             public static final double kA = 0.02; // Carriage kA
             public static final NeutralModeValue carriageNeutralMode = NeutralModeValue.Brake; // Carriage neutral mode
-            public static final double carriageKP = 0.5; // Carriage kP
+            public static final double carriageKP = 0.3; // Carriage kP
             public static final double carriageKI = 0.0; // Carriage kI
-            public static final double carriageKD = 0.02; // Carriage kD
+            public static final double carriageKD = 0.00; // Carriage kD
 
-            public static final double intakeVelocity = 0.5; // Carriage intake velocity
-            public static final double outtakeVelocity = -70; // Carriage outtake velocity
+            public static final double intakeVelocity = 10000; // Carriage intake velocity
+            public static final double outtakeVelocity = -7000; // Carriage outtake velocity
             public static final double prepShotVelocity = 0.3; // Carriage prep shot velocity
-            public static final double fireVelocity = 100.0; // Carriage fire velocity
+            public static final double fireVelocity = 10000.0; // Carriage fire velocity
             public static final double intakeSlowVelocity = 30.0; // Carriage intake slow velocity
         }
 
@@ -232,15 +232,15 @@ public final class Constants {
             public static final double anglekG = 0.0; // Angle kG
             public static final double anglekV = 0.0; // Angle kV
             public static final NeutralModeValue angleNeutralMode = NeutralModeValue.Brake; // Angle neutral mode
-            public static final double angleKP = 1.0; // Angle kP
-            public static final double angleKI = 0.0; // Angle kI
-            public static final double angleKD = 0.2; // Angle kD
+            public static final double angleKP = 1.5; // Angle kP
+            public static final double angleKI = 0.002; // Angle kI
+            public static final double angleKD = 0.35; // Angle kD
 
             public static final double shootkS = 0.0; // Shoot kS
             public static final double shootkV = 0.0; // Shoot kV
             public static final double shootkA = 0.00; // Shoot kA
             public static final NeutralModeValue fireNeutralMode = NeutralModeValue.Coast; // Shoot neutral mode
-            public static final double shootKP = 3.0; // Shoot kP
+            public static final double shootKP = 2.0; // Shoot kP
             public static final double shootKI = 0.0; // Shoot kI
             public static final double shootKD = 0.00; // Shoot kD
 

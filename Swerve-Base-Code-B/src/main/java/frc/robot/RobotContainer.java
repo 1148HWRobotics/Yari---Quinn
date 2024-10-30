@@ -39,7 +39,7 @@ public class RobotContainer {
 
     private final JoystickButton intakeButton = new JoystickButton(driver, PS4Controller.Button.kL2.value);
     private final JoystickButton shootClose = new JoystickButton(driver, PS4Controller.Button.kR1.value);
-    private final JoystickButton ampButton = new JoystickButton(driver, PS4Controller.Button.kSquare.value);
+    //private final JoystickButton ampButton = new JoystickButton(driver, PS4Controller.Button.kSquare.value);
     private final JoystickButton outTakeButton = new JoystickButton(driver, PS4Controller.Button.kL1.value);
     private final JoystickButton forceFire = new JoystickButton(driver, PS4Controller.Button.kCross.value);
     private final JoystickButton passButton = new JoystickButton(driver, PS4Controller.Button.kR2.value);
@@ -55,10 +55,10 @@ public class RobotContainer {
 
     /* Subsystems */
     private final Swerve s_Swerve = Swerve.getInstance();
-    // private final Intake intake = Intake.getInstance();
-    // private final Carriage carriage = Carriage.getInstance();
+    private final Mouth intake = Mouth.getInstance();
+    private final Throat carriage = Throat.getInstance();
     private final Shooter shooter = Shooter.getInstance();
-    // private final PoseEstimator poseEstimator = PoseEstimator.getInstance();
+    private final PoseEstimator poseEstimator = PoseEstimator.getInstance();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -90,7 +90,7 @@ public class RobotContainer {
                 Swerve.getInstance().zeroHeading();
             }
         });
-
+        NamedCommands.registerCommand("shoot", new AutoShootCommand().withTimeout(4));
         // Configure the button bindings
         configureButtonBindings();
         Constants.AutoConstants.configureAutos();
@@ -110,48 +110,49 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
         intakeButton.whileTrue(new IntakeCommand()).onFalse(new InstantCommand(() -> {
-            Intake.getInstance().stop();
-            Carriage.getInstance().stop();
+            Mouth.getInstance().stop();
+            Throat.getInstance().stop();
         }));
         outTakeButton.whileTrue(new OutTakeCommand());
         shootClose.whileTrue(new ShooterPresetCommand(14));
         forceFire.whileTrue(new InstantCommand(() -> {
-            Intake.getInstance().setIntakeSpeed(0.5);
-            Carriage.getInstance().setVelocity(1);
+            Mouth.getInstance().setFreaky(0.5);
+            Throat.getInstance().set(1);
         })).onFalse(new InstantCommand(() -> {
-            Intake.getInstance().stop();
-            Carriage.getInstance().stop();
+            Mouth.getInstance().stop();
+            Throat.getInstance().set(0);
+            Throat.getInstance().stop();
         }));
         passButton.whileTrue(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(3);
-            Shooter.getInstance().setVelocity(0.9999);
+            Shooter.getInstance().setThicknessTarget(3);
+            Shooter.getInstance().setFreakiness(100);
         })).onFalse(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(1.5);
+            Shooter.getInstance().setThicknessTarget(1.5);
             Shooter.getInstance().stop();
         }));
         highPass.whileTrue(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(13);
-            Shooter.getInstance().setVelocity(0.5);
+            Shooter.getInstance().setThicknessTarget(13);
+            Shooter.getInstance().setFreakiness(100);
         })).onFalse(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(1.5);
+            Shooter.getInstance().setThicknessTarget(1.5);
             Shooter.getInstance().stop();
         }));
         forceFireOperator.whileTrue(new InstantCommand(() -> {
-            Intake.getInstance().setIntakeSpeed(0.5);
-            Carriage.getInstance().setVelocity(1);
+            Mouth.getInstance().setFreaky(0.5);
+            Throat.getInstance().setFreakiness(1);
         })).onFalse(new InstantCommand(() -> {
-            Intake.getInstance().stop();
-            Carriage.getInstance().stop();
+            Mouth.getInstance().stop();
+            Throat.getInstance().stop();
         }));
         shootFar.whileTrue(new ShooterPresetCommand(9.5));
         shootVeryFar.whileTrue(new ShooterPresetCommand(6.3));
-        ampButton.whileTrue(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(Constants.Swerve.Shooter.upAngle);
-            Shooter.getInstance().amp();
-        })).onFalse(new InstantCommand(() -> {
-            Shooter.getInstance().setAngleTarget(1.5);
-            Shooter.getInstance().stop();
-        }));
+        // ampButton.whileTrue(new InstantCommand(() -> {
+        //     Shooter.getInstance().setThicknessTarget(Constants.Swerve.Shooter.upAngle);
+        //     Shooter.getInstance().amp();
+        // })).onFalse(new InstantCommand(() -> {
+        //     Shooter.getInstance().setThicknessTarget(1.5);
+        //     Shooter.getInstance().stop();
+        // }));
     }
 
     public static boolean getIsRed() {
@@ -170,7 +171,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
 
-        Swerve.getInstance().setPose(PathPlannerAuto.getStaringPoseFromAutoFile(Constants.AutoConstants.getAutoChooser().getSelected()));
-        return new PathPlannerAuto(Constants.AutoConstants.getAutoChooser().getSelected());
+        Swerve.getInstance().setPose(PathPlannerAuto.getStaringPoseFromAutoFile("Shoot Preload"));
+        return new PathPlannerAuto("Shoot Preload");
     }
 }

@@ -1,8 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Carriage;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Throat;
+import frc.robot.subsystems.Mouth;
 import frc.robot.subsystems.Shooter;
 
 public class OutTakeCommand extends Command {
@@ -12,15 +12,15 @@ public class OutTakeCommand extends Command {
 
     @Override
     public void initialize() {
-        Shooter.getInstance().setAngleTarget(4);
-        Carriage.getInstance().setHasNote(false);
-        Intake.getInstance().outtake();
-        Carriage.getInstance().outtake();
+        Shooter.getInstance().setThicknessTarget(4);
+        Throat.getInstance().setItsInsideOfMe(false);
+        Mouth.getInstance().excrete();
+        Throat.getInstance().hawk();
     }
 
     @Override
     public void end(boolean interrupted) {
-        Intake.getInstance().stop();
-        Carriage.getInstance().stop();
+        Mouth.getInstance().stop();
+        Throat.getInstance().stop();
     }
 }

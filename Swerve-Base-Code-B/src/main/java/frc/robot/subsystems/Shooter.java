@@ -4,8 +4,10 @@ import javax.swing.text.Position;
 
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
@@ -13,6 +15,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -31,42 +34,24 @@ public class Shooter extends SubsystemBase {
     private TalonFX shooterMotor2;
     private TalonFX angleMotor1;
     private TalonFX angleMotor2;
-    private double velocity = 0.0;
-    private double velocity2 = 0.0;
-    private double angleTarget = 0.0;
-
-    public double getAngleTarget() {
-        return angleTarget;
+    private double freakiness1 = 0.0;
+    private double freakiness2 = 0.0;
+    public double getVelocity() {
+        return freakiness1;
     }
 
-    private double angleCurrent = 0.0;
-    private boolean isAtVelocity = false;
-
-    public boolean isAtVelocity() {
-        return isAtVelocity;
+    private double thicknessCurrent = 0.0;
+    private double thicknessTarget = 0.0;
+    public double getThicknessTarget() {
+        return thicknessTarget;
     }
 
-    public double getAngleCurrent() {
-        return angleCurrent;
-    }
-
-    public void setAngleCurrent(double angleCurrent) {
-        this.angleCurrent = angleCurrent / 360;
-    }
-
-    private SendableChooser<NeutralModeValue> angleNeutralModeChooser = new SendableChooser<>();
-    private SendableChooser<NeutralModeValue> fireNeutralModeChooser = new SendableChooser<>();
-    private MotionMagicVelocityVoltage fireControl1;
-    private MotionMagicVelocityVoltage fireControl2;
-    private MotionMagicVelocityVoltage lastFireControl;
+    private NeutralModeValue angleNeutralMode = Constants.Swerve.Shooter.angleNeutralMode;
+    private NeutralModeValue velocityNeutralMode = Constants.Swerve.Shooter.fireNeutralMode;
+    
+    private VelocityVoltage freakyControl1;
+    private VelocityVoltage freakyControl2;
     private PositionVoltage angleControl;
-    private NeutralModeValue currentFireNeutralMode = Constants.Swerve.Shooter.fireNeutralMode;
-    private NeutralModeValue currentAngleNeutralMode = Constants.Swerve.Shooter.angleNeutralMode;
-    private BinarySensor angleSensor;
-    private SimpleMotorFeedforward shooterFeedforward = new SimpleMotorFeedforward(Constants.Swerve.Shooter.shootkS,
-            Constants.Swerve.Shooter.shootkV, Constants.Swerve.Shooter.shootkA);
-    private ArmFeedforward angleFeedForward = new ArmFeedforward(Constants.Swerve.Shooter.anglekS,
-            Constants.Swerve.Shooter.anglekG, Constants.Swerve.Shooter.anglekV);
 
     public static Shooter getInstance() {
         if (instance == null) {
@@ -80,8 +65,6 @@ public class Shooter extends SubsystemBase {
         this.shooterMotor2 = new TalonFX(Constants.Swerve.Shooter.fireMotor2ID);
         this.angleMotor1 = new TalonFX(Constants.Swerve.Shooter.angleMotor1ID);
         this.angleMotor2 = new TalonFX(Constants.Swerve.Shooter.angleMotor2ID);
-        angleMotor1.getConfigurator().apply(new TalonFXConfiguration());
-        angleMotor2.getConfigurator().apply(new TalonFXConfiguration());
         this.shooterMotor1.setInverted(Constants.Swerve.Shooter.fireMotor1Inverted);
         this.shooterMotor2.setInverted(Constants.Swerve.Shooter.fireMotor2Inverted);
         this.angleMotor1.setInverted(Constants.Swerve.Shooter.angleMotor1Inverted);
@@ -90,174 +73,63 @@ public class Shooter extends SubsystemBase {
         this.shooterMotor2.setNeutralMode(Constants.Swerve.Shooter.fireNeutralMode);
         this.angleMotor1.setNeutralMode(Constants.Swerve.Shooter.angleNeutralMode);
         this.angleMotor2.setNeutralMode(Constants.Swerve.Shooter.angleNeutralMode);
-        angleTarget = 0.0;
-        this.fireControl1 = new MotionMagicVelocityVoltage(velocity, 0.0, false, 0, 0, false, false, false);
-        this.fireControl2 = new MotionMagicVelocityVoltage(velocity, 0.0, false, 0, 0, false, false, false);
-        this.angleControl = new PositionVoltage(0.0, 0.0, true, 0.0, 0, false, false, false);
-        this.shooterMotor1.setControl(fireControl1);
-        this.shooterMotor2.setControl(fireControl1);
+        shooterMotor1.getConfigurator().apply(new MotionMagicConfigs());
+        shooterMotor2.getConfigurator().apply(new MotionMagicConfigs());
+        angleMotor1.getConfigurator().apply(new MotionMagicConfigs());
+        angleMotor2.getConfigurator().apply(new MotionMagicConfigs());
+        this.shooterMotor1.getConfigurator().apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.shootKP)
+                .withKI(Constants.Swerve.Shooter.shootKI).withKD(Constants.Swerve.Shooter.shootKD).withKS(Constants.Swerve.Shooter.shootkS).withKV(Constants.Swerve.Shooter.shootkV).withKA(Constants.Swerve.Shooter.shootkA));
+        this.shooterMotor2.getConfigurator().apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.shootKP).withKI(thicknessCurrent).withKD(Constants.Swerve.Shooter.shootKD).withKS(Constants.Swerve.Shooter.shootkS).withKV(Constants.Swerve.Shooter.shootkV).withKA(Constants.Swerve.Shooter.shootkA));
+        this.angleMotor1.getConfigurator().apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.angleKP)
+                .withKI(Constants.Swerve.Shooter.angleKI).withKD(Constants.Swerve.Shooter.angleKD).withKS(Constants.Swerve.Shooter.anglekS).withKG(Constants.Swerve.Shooter.anglekG).withKV(Constants.Swerve.Shooter.anglekV));
+        this.angleMotor2.getConfigurator().apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.angleKP).withKI(thicknessCurrent).withKD(Constants.Swerve.Shooter.angleKD).withKS(Constants.Swerve.Shooter.anglekS).withKG(Constants.Swerve.Shooter.anglekG).withKV(Constants.Swerve.Shooter.anglekV));
+        this.freakyControl1 = new VelocityVoltage(0, 0, true, 0, 0, false, false, false);
+        this.freakyControl2 = new VelocityVoltage(0, 0, true, 0, 0, false, false, false);
+        this.angleControl = new PositionVoltage(0.0).withEnableFOC(true);
+        this.shooterMotor1.setControl(freakyControl1);
+        this.shooterMotor2.setControl(freakyControl2);
         this.angleMotor1.setControl(angleControl);
         this.angleMotor2.setControl(angleControl);
-        this.angleSensor = new BinarySensor(Constants.Swerve.Shooter.angleSensorPort);
-        angleMotor1.setPosition(28.877);
-        angleMotor2.setPosition(28.877);
-        //angleMotor1.getConfigurator().apply(new HardwareLimitSwitchConfigs().withForwardLimitEnable(true).withForwardLimitAutosetPositionValue(Constants.Swerve.Shooter.upAngle).withReverseLimitEnable(true).withReverseLimitAutosetPositionValue(Constants.Swerve.Shooter.downAngle));
-        //angleMotor2.getConfigurator().apply(new HardwareLimitSwitchConfigs().withForwardLimitEnable(true).withForwardLimitAutosetPositionValue(Constants.Swerve.Shooter.upAngle).withReverseLimitEnable(true).withReverseLimitAutosetPositionValue(Constants.Swerve.Shooter.downAngle));
-        angleMotor1.getConfigurator()
-                .apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.angleKP)
-                        .withKI(Constants.Swerve.Shooter.angleKI).withKD(Constants.Swerve.Shooter.angleKD));
-                        // .withGravityType(GravityTypeValue.Arm_Cosine).withKS(Constants.Swerve.Shooter.anglekS)
-                        // .withKG(Constants.Swerve.Shooter.anglekG).withKV(Constants.Swerve.Shooter.anglekV));
-        angleMotor2.getConfigurator()
-                .apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.angleKP)
-                        .withKI(Constants.Swerve.Shooter.angleKI).withKD(Constants.Swerve.Shooter.angleKD));
-                        // .withGravityType(GravityTypeValue.Arm_Cosine).withKS(Constants.Swerve.Shooter.anglekS)
-                        // .withKG(Constants.Swerve.Shooter.anglekG).withKV(Constants.Swerve.Shooter.anglekV));
-
-        shooterMotor1.getConfigurator()
-                .apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.shootKP)
-                        .withKI(Constants.Swerve.Shooter.shootKI).withKD(Constants.Swerve.Shooter.shootKD)
-                        .withKS(Constants.Swerve.Shooter.shootkS)
-                        .withKV(Constants.Swerve.Shooter.shootkV).withKA(Constants.Swerve.Shooter.shootkA));
-        shooterMotor2.getConfigurator()
-                .apply(new Slot0Configs().withKP(Constants.Swerve.Shooter.shootKP)
-                        .withKI(Constants.Swerve.Shooter.shootKI).withKD(Constants.Swerve.Shooter.shootKD)
-                        .withKS(Constants.Swerve.Shooter.shootkS)
-                        .withKV(Constants.Swerve.Shooter.shootkV).withKA(Constants.Swerve.Shooter.shootkA));
-
-        fireNeutralModeChooser.setDefaultOption("Brake", NeutralModeValue.Brake);
-        fireNeutralModeChooser.addOption("Coast", NeutralModeValue.Coast);
-        angleNeutralModeChooser.setDefaultOption("Brake", NeutralModeValue.Brake);
-        angleNeutralModeChooser.addOption("Coast", NeutralModeValue.Coast);
-        angleCurrent = 28.877;
-
+        this.angleMotor1.setPosition(0.0);
+        this.angleMotor2.setPosition(0.0);
     }
 
-    public void setVelocity(double speed) {
-        velocity = speed;
-        velocity2 = speed;
+    public void setFreakiness(double speed) {
+        freakiness1 = speed;
+        freakiness2 = speed;
     }
 
-    public void toggleShooter() {
-        if (velocity != Constants.Swerve.Shooter.shootVelocity) {
-            velocity = Constants.Swerve.Shooter.shootVelocity;
-            velocity2 = Constants.Swerve.Shooter.shootVelocity;
-        } else {
-            velocity = 0;
-            velocity2 = 0;
-        }
-    }
-
-    public void fire() {
-        velocity = Constants.Swerve.Shooter.shootVelocity;
-        velocity2 = Constants.Swerve.Shooter.shootVelocity;
-    }
-
-    public void outtake() {
-        velocity = Constants.Swerve.Shooter.outtakeVelocity;
-        velocity2 = Constants.Swerve.Shooter.shootVelocity;
-    }
-
-    public void amp() {
-        velocity = -1 * Constants.Swerve.Shooter.ampVelocity;
-        velocity2 = 0;
-    }
-
-    public void setAngleTarget(double angle) {
-        this.angleTarget = angle;
+    public void setThicknessTarget(double angle) {
+        thicknessTarget = angle;
     }
 
     public void stop() {
-        velocity = 0.0;
-        velocity2 = 0.0;
+        freakiness1 = 0;
+        freakiness2 = 0;
     }
 
-    public void spin() {
-        setVelocity(Constants.Swerve.Shooter.shootVelocity);
+    public void goHome() {
+        thicknessTarget = 0;
     }
 
-    public void setFireControl(MotionMagicVelocityVoltage control) {
-        shooterMotor1.setControl(control);
-        shooterMotor2.setControl(control.clone());
+    public double getThicknessCurrent() {
+        return angleMotor1.getPosition().getValueAsDouble();
     }
 
-    public MotionMagicVelocityVoltage getFireControl1() {
-        return fireControl1;
-    }
-
-    public void setAngleControl(PositionVoltage control) {
-        angleMotor1.setControl(control);
-        angleMotor2.setControl(control);
-    }
-
-    public double getVelocity() {
-        return (shooterMotor1.getVelocity().getValueAsDouble() + shooterMotor2.getVelocity().getValueAsDouble()) / 2;
-    }
-
-    public void resetMotor() {
-        shooterMotor1.setPosition(0);
-        shooterMotor2.setPosition(0);
-    }
-
-    public void setFireNeutralMode(NeutralModeValue mode) {
-        shooterMotor1.setNeutralMode(mode);
-        shooterMotor2.setNeutralMode(mode);
-    }
-
-    public void setAngleNeutralMode(NeutralModeValue mode) {
-        angleMotor1.setNeutralMode(mode);
-        angleMotor2.setNeutralMode(mode);
-    }
-
-    public NeutralModeValue getFireNeutralMode() {
-        return currentFireNeutralMode;
-    }
-
-    public NeutralModeValue getAngleNeutralMode() {
-        return currentAngleNeutralMode;
+    public void amp() {
+        thicknessTarget = Constants.Swerve.Shooter.upAngle;
+        
     }
 
     @Override
     public void periodic() {
-        System.out.println(angleControl.Position);
-        if (Math.abs(velocity
-                - (shooterMotor1.getVelocity().getValueAsDouble() + shooterMotor2.getVelocity().getValueAsDouble())
-                        / 2) < 0.05) {
-            isAtVelocity = true;
-        } else {
-            isAtVelocity = false;
-        }
-        if (fireControl1 != lastFireControl) {
-            fireControl1 = lastFireControl;
-        }
-
-        if (fireControl1 != null){
-            setFireControl(fireControl1.withFeedForward(shooterFeedforward.calculate(velocity)));
-            this.shooterMotor1.setControl(fireControl1.withVelocity(velocity2));
-            this.shooterMotor2.setControl(fireControl2.withVelocity(velocity));
-        } else{
-            setFireControl(new MotionMagicVelocityVoltage(velocity, 0.0, true, 0, 0, false, false, false));
-        }
-
-        this.angleMotor1.setControl(angleControl.withPosition(angleTarget).withSlot(0));
-        this.angleMotor2.setControl(angleControl.withPosition(angleTarget).withSlot(0));
-        shooterMotor1.set(velocity2);
-        shooterMotor2.set(velocity);
-        
-
-
-
-        if (getFireNeutralMode() != fireNeutralModeChooser.getSelected()) {
-            setFireNeutralMode(fireNeutralModeChooser.getSelected());
-            currentFireNeutralMode = fireNeutralModeChooser.getSelected();
-        }
-
-        if (getAngleNeutralMode() != angleNeutralModeChooser.getSelected()) {
-            setAngleNeutralMode(angleNeutralModeChooser.getSelected());
-            currentAngleNeutralMode = angleNeutralModeChooser.getSelected();
-        }
-
-        lastFireControl = fireControl1;
+        freakyControl1 = new VelocityVoltage(freakiness1, 0, true, 0, 0, false, false, false);
+        freakyControl2 = new VelocityVoltage(freakiness2, 0, true, 0, 0, false, false, false);
+        angleControl = new PositionVoltage(thicknessTarget).withEnableFOC(true);
+        this.shooterMotor1.setControl(freakyControl1);
+        this.shooterMotor2.setControl(freakyControl2);
+        this.angleMotor1.setControl(angleControl);
+        this.angleMotor2.setControl(angleControl);
     }
 
 }

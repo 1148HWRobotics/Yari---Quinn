@@ -28,14 +28,14 @@ public class ShooterPresetCommand extends Command {
         // .setAngleTarget(Constants.Swerve.Shooter.adjustedState(Swerve.getInstance().getDistToSpeaker()).angle);
         // Shooter.getInstance()
         // .setVelocity(Constants.Swerve.Shooter.adjustedState(Swerve.getInstance().getDistToSpeaker()).speed_l);
-        Shooter.getInstance().setVelocity(Constants.Swerve.Shooter.shootVelocity);
-        Shooter.getInstance().setAngleTarget(angle);
+        Shooter.getInstance().setFreakiness(Constants.Swerve.Shooter.shootVelocity);
+        Shooter.getInstance().setThicknessTarget(angle);
     }
 
     @Override
     public void end(boolean interrupted) {
         Shooter.getInstance().stop();
-        Shooter.getInstance().setAngleTarget(1.5);
+        Shooter.getInstance().setThicknessTarget(1.5);
     }
 
 }
